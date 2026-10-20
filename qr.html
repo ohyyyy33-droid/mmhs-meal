@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>급식 QR 안내문</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+body{margin:0;font-family:"Noto Sans KR",sans-serif;background:#fff;color:#1d2421;display:flex;justify-content:center}
+.sheet{width:100%;max-width:700px;padding:48px 24px;text-align:center}
+.school{font-size:20px;color:#1f6f5c;font-weight:800}
+h1{font-size:44px;margin:8px 0 6px;letter-spacing:-.03em}
+p{font-size:18px;color:#555;margin:0 0 32px}
+#qr{display:inline-block;padding:20px;border:6px solid #1f6f5c;border-radius:28px}
+#qr img,#qr canvas{display:block;width:320px;height:320px}
+.url{margin-top:20px;font-size:15px;color:#777;word-break:break-all}
+.tags{margin-top:28px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.tags span{background:#dcece6;color:#1f6f5c;border-radius:999px;padding:6px 14px;font-weight:800;font-size:15px}
+button{margin-top:28px;padding:12px 22px;border-radius:12px;border:0;background:#1f6f5c;color:#fff;font:800 16px inherit;font-family:inherit;cursor:pointer}
+@media print{button{display:none}.sheet{padding-top:80px}}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="school">면목고등학교</div>
+  <h1>오늘 급식 뭐야? 🍱</h1>
+  <p>휴대폰 카메라로 찍으면 바로 확인!</p>
+  <div id="qr"></div>
+  <div class="url" id="url"></div>
+  <div class="tags"><span>요일별 메뉴</span><span>칼로리</span><span>알레르기 표시</span></div>
+  <button onclick="print()">안내문 인쇄하기</button>
+</div>
+<script>
+// 이 페이지가 올라간 주소를 기준으로 앱 주소를 자동으로 만듭니다.
+const appUrl = location.href.replace(/qr\.html.*$/, "");
+document.getElementById("url").textContent = appUrl;
+new QRCode(document.getElementById("qr"), {text: appUrl, width: 640, height: 640, correctLevel: QRCode.CorrectLevel.M});
+</script>
+</body>
+</html>

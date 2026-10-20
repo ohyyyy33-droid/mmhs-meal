@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>면목고 오늘의 급식</title>
+<meta name="description" content="면목고등학교 급식 메뉴 · 요일 · 칼로리 · 알레르기 정보">
+<meta name="theme-color" content="#1f6f5c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍱</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ec; --card:#ffffff; --ink:#1d2421; --muted:#6b736f; --line:#e6e1d6;
+  --accent:#1f6f5c; --accent-soft:#dcece6; --warn:#c2410c; --warn-soft:#fdebe1;
+  --chip:#f1ede4; --shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#121614;--card:#1b211e;--ink:#eef2ef;--muted:#9aa49f;--line:#2b332f;
+  --accent:#5cc3a6;--accent-soft:#1f3a32;--warn:#fb923c;--warn-soft:#3a2418;--chip:#252c28;--shadow:none}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;padding:max(16px,env(safe-area-inset-top)) 16px 40px}
+.wrap{max-width:560px;margin:0 auto}
+header{display:flex;align-items:flex-end;justify-content:space-between;margin:4px 2px 16px}
+.school{font-family:"Gowun Dodum",sans-serif;font-size:15px;color:var(--muted)}
+h1{margin:2px 0 0;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.today-btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;
+  padding:8px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+
+/* week strip */
+.week{display:grid;grid-template-columns:32px repeat(5,1fr) 32px;gap:6px;align-items:stretch;margin-bottom:14px}
+.nav{border:0;background:transparent;color:var(--muted);font-size:20px;cursor:pointer;border-radius:10px}
+.day{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:8px 0 7px;cursor:pointer;
+  font-family:inherit;color:var(--ink);text-align:center;display:flex;flex-direction:column;gap:2px;align-items:center}
+.day .dow{font-size:12px;color:var(--muted);font-weight:600}
+.day .dn{font-size:17px;font-weight:800}
+.day .dot{width:5px;height:5px;border-radius:50%;background:transparent}
+.day.has .dot{background:var(--accent)}
+.day.is-today .dn{color:var(--accent)}
+.day.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.day.sel .dow,.day.sel .dn{color:#fff}
+.day.sel .dot{background:#fff}
+
+/* main card */
+.card{background:var(--card);border-radius:22px;box-shadow:var(--shadow);border:1px solid var(--line);overflow:hidden}
+.card-top{padding:20px 20px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px dashed var(--line)}
+.date-big{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.dow-pill{display:inline-block;margin-left:6px;background:var(--accent-soft);color:var(--accent);
+  border-radius:8px;padding:2px 8px;font-size:14px;font-weight:800;vertical-align:3px}
+.meal-type{font-size:13px;color:var(--muted);margin-top:4px}
+.kcal{text-align:right;flex-shrink:0}
+.kcal b{display:block;font-size:26px;font-weight:800;color:var(--accent);line-height:1}
+.kcal span{font-size:12px;color:var(--muted)}
+
+.menu{list-style:none;margin:0;padding:6px 0}
+.menu li{padding:12px 20px;display:flex;flex-direction:column;gap:6px}
+.menu li+li{border-top:1px solid var(--line)}
+.dish{font-size:18px;font-weight:600}
+.menu li.alert .dish{color:var(--warn)}
+.menu li.alert .dish::before{content:"⚠️ ";font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{background:var(--chip);color:var(--muted);border-radius:7px;padding:2px 7px;font-size:12px;font-weight:600}
+.chip.mine{background:var(--warn-soft);color:var(--warn)}
+
+.nutri{padding:14px 20px 18px;background:color-mix(in srgb,var(--accent-soft) 45%,transparent);border-top:1px solid var(--line)}
+.nutri h3{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:600}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.macro{background:var(--card);border-radius:12px;padding:10px;text-align:center;border:1px solid var(--line)}
+.macro b{display:block;font-size:17px}
+.macro span{font-size:12px;color:var(--muted)}
+
+.empty{padding:44px 20px;text-align:center;color:var(--muted)}
+.empty .emoji{font-size:40px;display:block;margin-bottom:8px}
+
+/* allergy section */
+details{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:4px 16px}
+summary{cursor:pointer;padding:12px 0;font-weight:700;list-style:none;display:flex;justify-content:space-between}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--muted)}
+details[open] summary::after{content:"－"}
+.hint{font-size:13px;color:var(--muted);margin:0 0 10px}
+.allergy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;padding-bottom:14px}
+.al{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:8px 6px;
+  font:500 13px inherit;font-family:inherit;cursor:pointer;text-align:left}
+.al small{color:var(--muted);margin-right:4px}
+.al.on{background:var(--warn-soft);border-color:var(--warn);color:var(--warn);font-weight:700}
+
+footer{text-align:center;font-size:12px;color:var(--muted);margin-top:20px;line-height:1.6}
+footer a{color:inherit}
+.skeleton{height:14px;border-radius:6px;background:var(--chip);margin:14px 20px;animation:p 1.2s infinite}
+@keyframes p{50%{opacity:.5}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="school">면목고등학교</div>
+      <h1>오늘의 급식 🍱</h1>
+    </div>
+    <button class="today-btn" id="goToday">오늘</button>
+  </header>
+
+  <nav class="week" id="week" aria-label="요일 선택"></nav>
+
+  <main class="card" id="card">
+    <div class="skeleton" style="width:50%;margin-top:24px"></div>
+    <div class="skeleton"></div><div class="skeleton" style="width:70%"></div><div class="skeleton" style="width:60%;margin-bottom:24px"></div>
+  </main>
+
+  <details id="allergyBox">
+    <summary>내 알레르기 설정</summary>
+    <p class="hint">해당하는 재료를 눌러두면, 그 재료가 들어간 메뉴가 <b style="color:var(--warn)">주황색으로 표시</b>돼요. (이 폰에만 저장)</p>
+    <div class="allergy-grid" id="allergyGrid"></div>
+  </details>
+
+  <footer>
+    급식 정보: 교육청 NEIS 공개 데이터<br>
+    알레르기 표기는 학교 식단표 기준이며, 정확한 확인은 영양선생님께 문의하세요.
+  </footer>
+</div>
+
+<script>
+const ATPT = "B10", SCHOOL = "7010077";
+const ALLERGENS = {1:"난류",2:"우유",3:"메밀",4:"땅콩",5:"대두",6:"밀",7:"고등어",8:"게",9:"새우",10:"돼지고기",
+  11:"복숭아",12:"토마토",13:"아황산류",14:"호두",15:"닭고기",16:"쇠고기",17:"오징어",18:"조개류",19:"잣"};
+const DOW = ["일","월","화","수","목","금","토"];
+
+const store = {
+  get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+};
+let myAllergies = new Set(store.get("mmhs-allergies",[]));
+const cache = {};          // "YYYYMMDD" -> [meals]
+let cachedFile = null;     // meals.json fallback
+
+// 한국 시간 기준 오늘
+function kstToday(){
+  const n = new Date(Date.now() + 9*3600e3);
+  return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate()));
+}
+const ymd = d => d.toISOString().slice(0,10).replace(/-/g,"");
+const addDays = (d,n) => new Date(d.getTime() + n*864e5);
+function mondayOf(d){ const w = d.getUTCDay(); return addDays(d, w===0 ? 1 : (w===6 ? 2 : 1-w)); }
+
+let today = kstToday();
+let selected = (today.getUTCDay()===0||today.getUTCDay()===6) ? mondayOf(today) : today;
+let weekStart = mondayOf(selected);
+
+function parseRow(r){
+  const dishes = r.DDISH_NM.split(/<br\s*\/?>/i).map(s=>s.trim()).filter(Boolean).map(s=>{
+    const m = s.match(/\(([\d.\s]+)\)\s*$/);
+    const codes = m ? m[1].split(".").map(x=>parseInt(x,10)).filter(n=>ALLERGENS[n]) : [];
+    const name = (m ? s.slice(0,m.index) : s).replace(/[*#]+$/,"").trim();
+    return {name, codes};
+  });
+  const nut = {};
+  (r.NTR_INFO||"").split(/<br\s*\/?>/i).forEach(p=>{const [k,v]=p.split(":"); if(v) nut[k.trim()] = v.trim();});
+  return { date:r.MLSV_YMD, type:r.MMEAL_SC_NM, kcal:parseFloat(r.CAL_INFO)||null, dishes, nut };
+}
+
+async function fromApi(from,to){
+  const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&pSize=20&ATPT_OFCDC_SC_CODE=${ATPT}&SD_SCHUL_CODE=${SCHOOL}&MLSV_FROM_YMD=${from}&MLSV_TO_YMD=${to}`;
+  const res = await fetch(url);
+  const j = await res.json();
+  const rows = j.mealServiceDietInfo?.[1]?.row ?? [];
+  return rows;
+}
+async function fromFile(){
+  if(!cachedFile){
+    const res = await fetch("meals.json?t=" + ymd(kstToday()));
+    cachedFile = res.ok ? await res.json() : {rows:[]};
+  }
+  return cachedFile.rows || [];
+}
+
+async function loadWeek(mon){
+  const from = ymd(mon), to = ymd(addDays(mon,4));
+  if(cache[from+"w"]) return;
+  let rows;
+  try { rows = await fromApi(from,to); }
+  catch(e){ rows = (await fromFile().catch(()=>[])).filter(r=>r.MLSV_YMD>=from && r.MLSV_YMD<=to); }
+  for(let i=0;i<5;i++) cache[ymd(addDays(mon,i))] = [];
+  rows.map(parseRow).forEach(m=>{(cache[m.date] ||= []).push(m)});
+  cache[from+"w"] = true;
+}
+
+function renderWeek(){
+  const el = document.getElementById("week");
+  let html = `<button class="nav" id="prev" aria-label="이전 주">‹</button>`;
+  for(let i=0;i<5;i++){
+    const d = addDays(weekStart,i), k = ymd(d);
+    const cls = ["day", cache[k]?.length?"has":"", k===ymd(today)?"is-today":"", k===ymd(selected)?"sel":""].join(" ");
+    html += `<button class="${cls}" data-k="${k}"><span class="dow">${DOW[d.getUTCDay()]}</span><span class="dn">${d.getUTCDate()}</span><span class="dot"></span></button>`;
+  }
+  html += `<button class="nav" id="next" aria-label="다음 주">›</button>`;
+  el.innerHTML = html;
+  el.querySelectorAll(".day").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k; selected=new Date(Date.UTC(+k.slice(0,4),+k.slice(4,6)-1,+k.slice(6))); render();
+  });
+  document.getElementById("prev").onclick=()=>shiftWeek(-7);
+  document.getElementById("next").onclick=()=>shiftWeek(7);
+}
+async function shiftWeek(n){ weekStart=addDays(weekStart,n); selected=weekStart; await refresh(); }
+
+function renderCard(){
+  const card = document.getElementById("card");
+  const d = selected, k = ymd(d);
+  const dateLabel = `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일`;
+  const meals = cache[k] || [];
+  if(!meals.length){
+    card.innerHTML = `<div class="card-top"><div><span class="date-big">${dateLabel}</span><span class="dow-pill">${DOW[d.getUTCDay()]}</span></div></div>
+      <div class="empty"><span class="emoji">🍽️</span>이 날은 급식 정보가 없어요.<br><small>방학·휴일이거나 아직 식단이 올라오지 않았어요.</small></div>`;
+    return;
+  }
+  card.innerHTML = meals.map(m=>{
+    const items = m.dishes.map(x=>{
+      const hit = x.codes.some(c=>myAllergies.has(c));
+      const chips = x.codes.map(c=>`<span class="chip ${myAllergies.has(c)?"mine":""}">${ALLERGENS[c]}</span>`).join("");
+      return `<li class="${hit?"alert":""}"><span class="dish">${x.name}</span>${chips?`<div class="chips">${chips}</div>`:""}</li>`;
+    }).join("");
+    const n = m.nut, g = key => Object.entries(n).find(([kk])=>kk.startsWith(key))?.[1] ?? "-";
+    return `<div class="card-top">
+        <div><span class="date-big">${dateLabel}</span><span class="dow-pill">${DOW[d.getUTCDay()]}요일</span>
+        <div class="meal-type">${m.type}</div></div>
+        <div class="kcal"><b>${m.kcal?Math.round(m.kcal):"-"}</b><span>kcal</span></div>
+      </div>
+      <ul class="menu">${items}</ul>
+      <div class="nutri"><h3>영양 정보</h3><div class="macros">
+        <div class="macro"><b>${g("탄수화물")}g</b><span>탄수화물</span></div>
+        <div class="macro"><b>${g("단백질")}g</b><span>단백질</span></div>
+        <div class="macro"><b>${g("지방")}g</b><span>지방</span></div>
+      </div></div>`;
+  }).join('<div style="height:10px;background:var(--bg)"></div>');
+}
+
+function renderAllergies(){
+  const grid = document.getElementById("allergyGrid");
+  grid.innerHTML = Object.entries(ALLERGENS).map(([n,name])=>
+    `<button class="al ${myAllergies.has(+n)?"on":""}" data-n="${n}"><small>${n}</small>${name}</button>`).join("");
+  grid.querySelectorAll(".al").forEach(b=>b.onclick=()=>{
+    const n=+b.dataset.n; myAllergies.has(n)?myAllergies.delete(n):myAllergies.add(n);
+    store.set("mmhs-allergies",[...myAllergies]); renderAllergies(); renderCard();
+  });
+  document.querySelector("#allergyBox summary").firstChild.textContent =
+    myAllergies.size ? `내 알레르기 설정 (${myAllergies.size}개)` : "내 알레르기 설정";
+}
+
+function render(){ renderWeek(); renderCard(); }
+async function refresh(){ render(); await loadWeek(weekStart); render(); }
+
+document.getElementById("goToday").onclick=()=>{
+  today = kstToday();
+  selected = (today.getUTCDay()===0||today.getUTCDay()===6) ? mondayOf(today) : today;
+  weekStart = mondayOf(selected); refresh();
+};
+renderAllergies();
+refresh();
+</script>
+</body>
+</html>
